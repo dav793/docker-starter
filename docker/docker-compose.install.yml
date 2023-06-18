@@ -1,0 +1,35 @@
+version: '3.0' 
+
+services:
+  server-game:
+    container_name: ${GAME_SERVER_CONTAINER_NAME}
+    image: ${GAME_SERVER_CONTAINER_NAME}
+    build: 
+      context: ${WORKING_DIR}
+      dockerfile: docker/Dockerfile
+      args:
+        ENV_USER: ${ENV_USER}
+    restart: "no"
+    network_mode: "bridge"
+    volumes:
+      - project-volume:/home/${ENV_USER}/project
+    command: [ "./products/game-server/_install.sh" ]
+
+  client-game:
+    container_name: ${GAME_CLIENT_CONTAINER_NAME}
+    image: ${GAME_CLIENT_CONTAINER_NAME}
+    build: 
+      context: ${WORKING_DIR}
+      dockerfile: docker/Dockerfile
+      args:
+        ENV_USER: ${ENV_USER}
+    restart: "no"
+    network_mode: "bridge"
+    volumes:
+      - project-volume:/home/${ENV_USER}/project
+    command: [ "./products/game-client/_install.sh" ]
+    
+volumes:
+  project-volume:
+    external: true
+    name: ${VOLUME_NAME}

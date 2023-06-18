@@ -1,0 +1,63 @@
+version: '3.0' 
+
+services:
+  db-game:
+    image: mongo:3.4.18-jessie
+    container_name: ${GAME_DB_CONTAINER_NAME}
+    ports:
+      - "27017:27017"
+    networks:
+        - project-network
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PWD}
+    volumes:
+      - ${WORKING_DIR}/docker/db/game-db/data:/data/db
+      - ${WORKING_DIR}/docker/db/game-db/log:/var/log/mongodb
+      - ${WORKING_DIR}/docker/db/game-db/dump:/data/dump
+
+  server-game:
+    container_name: ${GAME_SERVER_CONTAINER_NAME}
+    image: ${GAME_SERVER_CONTAINER_NAME}
+    build: 
+      context: ${WORKING_DIR}
+      dockerfile: docker/Dockerfile
+      args:
+        ENV_USER: ${ENV_USER}
+    ports: 
+      - "3000:3000"
+      - "3001:3001"
+    restart: "no"
+    networks:
+        - project-network
+    volumes:
+      - project-volume:/home/${ENV_USER}/project
+    command: [ "./products/game-server/_run.sh" ]
+
+  client-game:
+    container_name: ${GAME_CLIENT_CONTAINER_NAME}
+    image: ${GAME_CLIENT_CONTAINER_NAME}
+    build: 
+      context: ${WORKING_DIR}
+      dockerfile: docker/Dockerfile
+      args:
+        ENV_USER: ${ENV_USER}
+    ports: 
+      - "4200:4200"
+    restart: "no"
+    networks:
+        - project-network
+    volumes:
+      - project-volume:/home/${ENV_USER}/project
+    command: [ "./products/game-client/_run.sh" ]
+    
+networks:
+  project-network:
+    name: ${NETWORK_NAME}
+    external: true
+
+volumes:
+  project-volume:
+    external: true
+    name: ${VOLUME_NAME}
