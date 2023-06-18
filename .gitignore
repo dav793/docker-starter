@@ -110,9 +110,10 @@ dist
 .vscode
 .vs
 
+# Jetbrains
+.idea/*
+
 # Application
 .env
 .env.bat
-
-# Jetbrains
-.idea/*
+docker/db
